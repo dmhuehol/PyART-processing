@@ -57,7 +57,6 @@ Undergraduate Research Assistant at Environment Analytics
 # Load necessary packages (set appropriate working directory!)
 import os
 os.chdir('C:\\Users\\lmtomkin\\Documents\\winter_storms\\PyART-processing')
-import sys
 import colormap
 import gen_fun
 import run_fun
@@ -65,11 +64,15 @@ import gc
 import time
 import numpy as np
 from multiprocessing import Process
+import sys
 
 ######### Define Variables #############
 ### Path Variables
-inpath = 'C:\\Users\\lmtomkin\\Documents\\winter_storms\\data\\KASPR\\'+sys.argv[1]+'\\'+sys.argv[2]
-outpath = 'C:\\Users\\lmtomkin\\Documents\\winter_storms\\images\\KASPR\\'+sys.argv[1]+'\\'+sys.argv[2]
+#inpath = 'C:\\Users\\lmtomkin\\Documents\\winter_storms\\data\\KASPR\\'+sys.argv[1]+'\\'+sys.argv[2]
+#outpath = 'C:\\Users\\lmtomkin\\Documents\\winter_storms\\images\\KASPR\\'+sys.argv[1]+'\\'+sys.argv[2]
+inpath = 'C:\\Users\\lmtomkin\\Documents\\winter_storms\\data\\KASPR\\20191201\\RHI'
+outpath = 'C:\\Users\\lmtomkin\\Documents\\winter_storms\\images\\KASPR\\20191201\\RHI'
+
 ### File and Data Variables ###
 wildcard = 'KASPR' #Common wildcards are below
 #CHL: CSU-CHILL S-band
@@ -80,7 +83,7 @@ wildcard = 'KASPR' #Common wildcards are below
 #KXA: Dallas HF-S
 #KXAS: NBC5 StormRanger
 
-scan_strat = 'RHI' #Possible entries are below
+scan_strat = sys.argv[2] #Possible entries are below
 #PPI: Plan view at a specific tilt angle
 #RHI: Cross section along a specific azimuth
 #Sector: Plan view at a specific tilt angle, with a confined set of azimuths. ONLY PARTIALLY IMPLEMENTED
@@ -111,8 +114,8 @@ if radar_type=='CHILL':
     fields = ['reflectivity','dealiased_velocity','corrected_differential_reflectivity','spectrum_width','cross_correlation_ratio','normalized_coherent_power','one_way_differential_phase','two_way_differential_phase']
     ranges = [(-5,25),(-20,20),(-1,2),(0,4),(0.4,1),(0,1),(-60,-120),(-1.5,1.5)] #CSU-CHILL (winter) X-band
 elif radar_type=='KASPR':
-    fields = ['correlation_coefficient','differential_reflectivity','PyART_dealiased_velocity','reflectivity','spectrum_width','linear_depolarization_ratio','snr','kdp','differential_phase']
-    ranges = [(0.5,1),(-2,2),(-45,45),(-5,40),(0,3),(-40,-20),(20,100),(-3,3),(-180,180)] #KASPR (commonly-used) (winter)
+    fields = ['correlation_coefficient','differential_reflectivity','PyART_dealiased_velocity','reflectivity','spectrum_width','linear_depolarization_ratio','snr']
+    ranges = [(0.5,1),(-2,2),(-35,35),(-5,40),(0,3),(-40,-20),(0,100)] #KASPR (commonly-used) (winter)
 elif radar_type=='NEXRAD':
     fields = ['reflectivity','dealiased_velocity','spectrum_width','cross_correlation_ratio','differential_reflectivity']
     ranges = [(-5,50),(-50,50),(0,12),(0,1),(-4,4)]
@@ -133,9 +136,6 @@ if scan_strat != 'RHI':
     if radar_type == 'NEXRAD':
         x_lim = [-175,175]
         y_lim = [-175,175]
-    elif radar_type == 'KASPR':
-        x_lim = [-40,40]
-        y_lim = [-40,40]
 if scan_strat == 'RHI':
     x_lim = [0,60]
     y_lim = [0,9]
@@ -159,7 +159,7 @@ if scan_strat == 'RHI':
 if radar_type=='CHILL':
     colorbar_labels = ['DBZ (dBZ)','V (m/s)','ZDR (dB)','Width (m/s)','rhoHV','NCP','PhiDP (deg)','KDP (deg/km)'] #CSU-CHILL
 elif radar_type=='KASPR':
-    colorbar_labels = ['rhoHV','Zdr (dB)','V (m/s)','Z (dBZ)','Spectral Width (m/s)','LDR (dB)','SNR','Kdp (deg/km)','PhiDP (deg)'] #KASPR common
+    colorbar_labels = ['rhoHV','Zdr (dB)','V (m/s)','Z (dBZ)','Spectral Width (m/s)','LDR (dB)','SNR'] #KASPR common
 elif radar_type=='NEXRAD':
     colorbar_labels = ['DBZ (dBZ)','V (m/s)','Width (m/s)','rhoHV','Zdr (dB)']
 
@@ -216,7 +216,7 @@ cuckooPalette = colormap.cuckoo()
 if radar_type=='CHILL':
     cmaps = [LCH,'RdBu_r',LCH_zdr,LCH_wid,'bone_r','copper','magma',cuckooPalette] #CSU-CHILL
 elif radar_type=='KASPR':
-    cmaps = ['bone_r',LCH_zdr,'RdBu_r',LCH,LCH_wid,'inferno','copper',cuckooPalette,'magma'] #KASPR common
+    cmaps = ['bone_r',LCH_zdr,'RdBu_r',LCH,LCH_wid,'inferno','copper'] #KASPR common
 elif radar_type=='NEXRAD':
     cmaps = [LCH,'RdBu_r',LCH_wid,'bone_r',LCH_zdr]
 
@@ -250,7 +250,7 @@ PhiDP_mask = {
         "range": (-5, 5)
         }
 rhoHV_mask = {
-        "bool": False,
+        "bool": True,
         "range": (0.45, 1.2)
         }
 NCP_mask = {
@@ -258,8 +258,8 @@ NCP_mask = {
         "range": (0.15, 1.2)
         }
 SNR_mask = {
-        "bool": True,
-        "range": (20, 100)
+        "bool": False,
+        "range": (5, 100)
         }
 
 #   Account for Zdr offset on radars such as KASPR or HF-S

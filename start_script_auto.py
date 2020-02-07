@@ -80,7 +80,7 @@ wildcard = 'KASPR' #Common wildcards are below
 #KXA: Dallas HF-S
 #KXAS: NBC5 StormRanger
 
-scan_strat = 'RHI' #Possible entries are below
+scan_strat = sys.argv[2] #Possible entries are below
 #PPI: Plan view at a specific tilt angle
 #RHI: Cross section along a specific azimuth
 #Sector: Plan view at a specific tilt angle, with a confined set of azimuths. ONLY PARTIALLY IMPLEMENTED
